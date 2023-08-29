@@ -1,6 +1,7 @@
 import socket
+import ast
 
-class Client():
+class Client:
 
     def __init__(self, host, port):
         self._server_address = (host, port)
@@ -17,5 +18,4 @@ class Client():
             s.connect(self._server_address)
             s.send(bytes("gvhbrtyiuvcf768f", "UTF-8"))
             result_data = str(s.recv(4096))
-        return result_data
-
+        return list(map(lambda x: x[2:len(x)-1], ast.literal_eval(result_data[2:len(result_data)-1])))

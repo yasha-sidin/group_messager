@@ -1,4 +1,7 @@
 from Client.Client import Client
+from Server.Client_frame import Client_frame
 
-Client('localhost', 8888).send_message("text")
-print(Client('localhost', 8888).get_data())
+if __name__ == '__main__':
+    client = Client('localhost', 8888)
+    frame = Client_frame(client)
+    frame.initialize()
