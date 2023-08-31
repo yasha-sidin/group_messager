@@ -6,15 +6,13 @@ import tkinter.font as tkFont
 
 import schedule as schedule
 
-from Client.Client import Client
-
-
 class Client_frame:
     def __init__(self, client):
         self._client = client
         self._send_frame = None
         self._textfield = None
         self._header_entry = None
+        self._string_var_header = None
 
     def initialize(self):
         window = tk.Tk()
@@ -62,48 +60,54 @@ class Client_frame:
         self._send_frame = tk.Frame(master=text_frame, bg="#EBC8C1")
         self._send_frame.pack(fill=tk.BOTH, side=tk.TOP, expand=True, padx=140, pady=6, anchor=tk.N)
 
+        self._string_var_header = tk.StringVar(master_frame)
         self._header_entry = tk.Entry(master=self._send_frame, bg="#D5A8A0", font=HEADER_FONT, relief="ridge",
-                                      justify=tk.LEFT, selectbackground="#FBEEE6", selectforeground="#E77A63", width=60)
+                                      justify=tk.LEFT, selectbackground="#FBEEE6", selectforeground="#E77A63", width=60, textvariable=self._string_var_header)
         self._header_entry.pack(side=tk.LEFT)
 
         button_clear = tk.Button(master=self._send_frame, text="Send", font=BUTTON_FONT, background="#D5A8A0",
-                                 activebackground="#F4DBD6", command=self.send_message)
+                                 activebackground="#F4DBD6", command=self.__send_message)
         button_clear.pack(side=tk.LEFT)
+        self.__refresh_messages()
 
-        threading.Thread(target=self.run).start()
+        threading.Thread(target=self.__run).start()
+
 
         window.mainloop()
 
-    def refresh_messages(self):
+    def __refresh_messages(self):
         self._textfield['state'] = 'normal'
         data = list(map(lambda x: 'Message: ' + x + "\n", self._client.get_data()))
         string = ""
         for row in data:
             string += row
+        if self._textfield.get("1.0", tk.END) == string:
+            return
         self.__clear_text()
         self._textfield.insert("1.0", string)
         self._textfield['state'] = 'disabled'
 
-    def run(self):
-        schedule.every(1).seconds.do(self.refresh_messages)
-        while True:
-            time.sleep(1)
-            schedule.run_pending()
+    def __run(self):
+        try:
+            schedule.every(1).seconds.do(self.__refresh_messages)
+            while True:
+                time.sleep(1)
+                schedule.run_pending()
+        except Exception:
+            exit(0)
 
     def __clear_text(self):
         self._textfield.delete("1.0", tk.END)
 
-    def send_message(self):
+    def __send_message(self):
+        if self._string_var_header.get() == "":
+            return
         self._client.send_message(self._header_entry.get())
         self._header_entry.delete(0, tk.END)
 
-button_frame = property
-master = property
-textfield = property
-header_entry = property
-string_var_header = property
-LABEL_FONT = property
-LISTBOX_FONT = property
-BUTTON_FONT = property
-HEADER_FONT = property
+    button_frame = property
+    master = property
+    textfield = property
+    header_entry = property
+
 
