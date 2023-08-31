@@ -81,7 +81,7 @@ class Client_frame:
         string = ""
         for row in data:
             string += row
-        if self._textfield.get("1.0", tk.END) == string:
+        if self._textfield.get("1.0", "end-1c") == string:
             return
         self.__clear_text()
         self._textfield.insert("1.0", string)
